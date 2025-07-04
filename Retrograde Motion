@@ -1,0 +1,33 @@
+'''Retrograde motion is the apparent reversal of a planet’s movement across the sky, where it seems to move backward 
+(from east to west) relative to the stars. This illusion occurs because of the differing orbital speeds of Earth and 
+other planets as they move around the Sun'''
+import numpy as np
+import matplotlib.pyplot as plt
+from astropy.time import Time
+from astropy.coordinates import get_body, solar_system_ephemeris
+
+times = Time(np.arange(Time('2025-01-01').jd, Time('2026-01-01').jd, 2), format='jd')
+
+planets = ['uranus', 'saturn', 'mercury', 'mars']
+planet_coords = {}
+
+with solar_system_ephemeris.set('builtin'):
+    for planet in planets:
+        coords = [get_body(planet, t) for t in times]
+        ra = np.array([c.ra.deg for c in coords])
+        dec = np.array([c.dec.deg for c in coords])
+        planet_coords[planet] = (ra, dec)
+
+plt.figure(figsize=(12, 8))
+for planet in planets:
+    ra, dec = planet_coords[planet]
+    plt.plot(ra, dec, label=planet.capitalize(), linewidth = 3)
+
+plt.xlabel('Right Ascension (in degrees)')
+plt.ylabel('Declination (in degrees)')
+plt.title('Retrograde Motion of Uranus, Saturn, Mercury, and Mars (2025)')
+plt.legend()
+plt.grid()
+plt.gca().invert_xaxis() 
+plt.tight_layout()
+plt.show()
